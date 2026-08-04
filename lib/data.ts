@@ -7,8 +7,6 @@ export async function getChannelStats(): Promise<ChannelStats> {
   const row = rows[0];
 
   if (!row) {
-    // Sane fallback so the page still renders before the first ingestion
-    // run has ever happened, rather than crashing.
     return {
       subscriberCount: MILESTONE_CONFIG.chapterStart,
       totalViews: 0,
@@ -19,30 +17,53 @@ export async function getChannelStats(): Promise<ChannelStats> {
   }
 
   return {
-    subscriberCount: row.subscriber_count,
-    totalViews: row.total_views,
-    videoCount: row.video_count,
+    subscriberCount: Number(row.subscriber_count),
+    totalViews: Number(row.total_views), // FIX: was string from bigint
+    videoCount: Number(row.video_count),
     avatarUrlYoutube: row.avatar_url_youtube,
-    updatedAt: row.updated_at,
+    updatedAt: row.updated_at?.toISOString ? row.updated_at.toISOString() : String(row.updated_at),
   };
 }
 
-export async function getContentItems(): Promise<ContentItem[]> {
+// For timeline + recent uploads (since 100K)
+export async function getTimelineItems(): Promise<ContentItem[]> {
   const rows = await sql`
     select * from content_items
     where published_at >= ${MILESTONE_CONFIG.chapterStartDate}
     order by published_at desc
     limit 100
   `;
-
   return rows.map((r) => ({
     videoId: r.video_id,
     type: r.type,
     title: r.title,
     thumbnailUrl: r.thumbnail_url,
-    publishedAt: r.published_at,
-    viewCount: r.view_count,
-    durationSeconds: r.duration_seconds,
+    publishedAt: r.published_at?.toISOString ? r.published_at.toISOString() : String(r.published_at),
+    viewCount: Number(r.view_count),
+    durationSeconds: r.duration_seconds != null ? Number(r.duration_seconds) : null,
     url: r.url,
   }));
 }
+
+// For fan favorites (all-time top videos, no date filter)
+export async function getFanFavorites(): Promise<ContentItem[]> {
+  const rows = await sql`
+    select * from content_items
+    where type = 'video'
+    order by view_count desc
+    limit 12
+  `;
+  return rows.map((r) => ({
+    videoId: r.video_id,
+    type: r.type,
+    title: r.title,
+    thumbnailUrl: r.thumbnail_url,
+    publishedAt: r.published_at?.toISOString ? r.published_at.toISOString() : String(r.published_at),
+    viewCount: Number(r.view_count),
+    durationSeconds: r.duration_seconds != null ? Number(r.duration_seconds) : null,
+    url: r.url,
+  }));
+}
+
+// Keep backward compat
+export const getContentItems = getTimelineItems;
