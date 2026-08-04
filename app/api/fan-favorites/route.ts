@@ -13,14 +13,14 @@ export async function GET() {
   `;
 
   const items: ContentItem[] = rows.map((r) => ({
-    videoId: r.video_id,
+    videoId: String(r.video_id),
     type: r.type,
-    title: r.title,
-    thumbnailUrl: r.thumbnail_url,
-    publishedAt: r.published_at,
-    viewCount: r.view_count,
-    durationSeconds: r.duration_seconds,
-    url: r.url,
+    title: String(r.title),
+    thumbnailUrl: String(r.thumbnail_url),
+    publishedAt: r.published_at ? new Date(r.published_at).toISOString() : new Date().toISOString(),
+    viewCount: Number(r.view_count ?? 0),
+    durationSeconds: r.duration_seconds != null ? Number(r.duration_seconds) : null,
+    url: String(r.url),
   }));
 
   return NextResponse.json(items, {
