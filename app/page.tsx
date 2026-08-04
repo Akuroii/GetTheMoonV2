@@ -1,7 +1,18 @@
 import { getChannelStats, getTimelineItems, getFanFavorites } from "@/lib/data";
-...
+import { LiveStatsSync } from "@/components/data/LiveStatsSync";
+import { Hero } from "@/components/hero/Hero";
+import { MilestoneJourney } from "@/components/milestone/MilestoneJourney";
+import { ContentTimeline } from "@/components/timeline/ContentTimeline";
+import { StatsRow } from "@/components/stats/StatsRow";
+import { SocialLinks } from "@/components/stats/SocialLinks";
+import { RecentUploads } from "@/components/content/RecentUploads";
+import { FanFavorites } from "@/components/content/FanFavorites";
+import { MILESTONE_CONFIG, nextMilestone } from "@/lib/milestones";
+
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
-  const [stats, timelineItems, fanFavorites] = await Promise.all([
+  const [stats, timelineItems, fanItems] = await Promise.all([
     getChannelStats(),
     getTimelineItems(),
     getFanFavorites(),
@@ -16,8 +27,8 @@ export default async function HomePage() {
       <SocialLinks />
       <ContentTimeline items={timelineItems} />
       <RecentUploads items={timelineItems} />
-      <FanFavorites items={fanFavorites} />
-      ...
+      <FanFavorites items={fanItems} />
+      <p className="sr-only">Tracking {MILESTONE_CONFIG.chapterStart.toLocaleString()} to {MILESTONE_CONFIG.chapterGoal.toLocaleString()}</p>
     </main>
   );
 }
