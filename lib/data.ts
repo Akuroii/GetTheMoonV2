@@ -18,14 +18,13 @@ export async function getChannelStats(): Promise<ChannelStats> {
 
   return {
     subscriberCount: Number(row.subscriber_count),
-    totalViews: Number(row.total_views), // FIX: was string from bigint
+    totalViews: Number(row.total_views),
     videoCount: Number(row.video_count),
     avatarUrlYoutube: row.avatar_url_youtube,
-    updatedAt: row.updated_at?.toISOString ? row.updated_at.toISOString() : String(row.updated_at),
+    updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : new Date().toISOString(),
   };
 }
 
-// For timeline + recent uploads (since 100K)
 export async function getTimelineItems(): Promise<ContentItem[]> {
   const rows = await sql`
     select * from content_items
@@ -33,19 +32,19 @@ export async function getTimelineItems(): Promise<ContentItem[]> {
     order by published_at desc
     limit 100
   `;
+
   return rows.map((r) => ({
-    videoId: r.video_id,
+    videoId: String(r.video_id),
     type: r.type,
-    title: r.title,
-    thumbnailUrl: r.thumbnail_url,
-    publishedAt: r.published_at?.toISOString ? r.published_at.toISOString() : String(r.published_at),
-    viewCount: Number(r.view_count),
+    title: String(r.title),
+    thumbnailUrl: String(r.thumbnail_url),
+    publishedAt: r.published_at ? new Date(r.published_at).toISOString() : new Date().toISOString(),
+    viewCount: Number(r.view_count ?? 0),
     durationSeconds: r.duration_seconds != null ? Number(r.duration_seconds) : null,
-    url: r.url,
+    url: String(r.url),
   }));
 }
 
-// For fan favorites (all-time top videos, no date filter)
 export async function getFanFavorites(): Promise<ContentItem[]> {
   const rows = await sql`
     select * from content_items
@@ -53,17 +52,18 @@ export async function getFanFavorites(): Promise<ContentItem[]> {
     order by view_count desc
     limit 12
   `;
+
   return rows.map((r) => ({
-    videoId: r.video_id,
+    videoId: String(r.video_id),
     type: r.type,
-    title: r.title,
-    thumbnailUrl: r.thumbnail_url,
-    publishedAt: r.published_at?.toISOString ? r.published_at.toISOString() : String(r.published_at),
-    viewCount: Number(r.view_count),
+    title: String(r.title),
+    thumbnailUrl: String(r.thumbnail_url),
+    publishedAt: r.published_at ? new Date(r.published_at).toISOString() : new Date().toISOString(),
+    viewCount: Number(r.view_count ?? 0),
     durationSeconds: r.duration_seconds != null ? Number(r.duration_seconds) : null,
-    url: r.url,
+    url: String(r.url),
   }));
 }
 
-// Keep backward compat
+// Keep old name working
 export const getContentItems = getTimelineItems;
