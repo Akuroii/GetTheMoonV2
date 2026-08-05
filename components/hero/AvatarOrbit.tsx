@@ -1,9 +1,13 @@
+"use client";
+
 import Image from "next/image";
+import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { OrbitRing } from "./OrbitRing";
 import { OrbitingBody, type OrbitingBodyProps } from "./OrbitingBody";
 import { GravityParticles } from "./GravityParticles";
+import { useRef } from "react";
 
-const RINGS = [42, 62, 84]; // diameter, % of container — one per orbiting body
+const RINGS = [42, 62, 84];
 
 const BODIES: OrbitingBodyProps[] = [
   { color: "var(--violet)", radiusPercent: 21, size: 7, duration: 46, startAngle: 15 },
@@ -11,67 +15,122 @@ const BODIES: OrbitingBodyProps[] = [
   { color: "var(--gold)", radiusPercent: 42, size: 5, duration: 94, startAngle: 290 },
 ];
 
-export function AvatarOrbit({
-  avatarSrc,
-  avatarAlt,
-}: {
-  avatarSrc: string | null;
-  avatarAlt: string;
-}) {
+export function AvatarOrbit({ avatarSrc, avatarAlt }: { avatarSrc: string | null; avatarAlt: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(mouseY, [-150, 150], [8, -8]), { stiffness: 150, damping: 20 });
+  const rotateY = useSpring(useTransform(mouseX, [-150, 150], [-8, 8]), { stiffness: 150, damping: 20 });
+
+  function handleMouseMove(e: React.MouseEvent) {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    mouseX.set(e.clientX - centerX);
+    mouseY.set(e.clientY - centerY);
+  }
+
+  function handleMouseLeave() {
+    mouseX.set(0);
+    mouseY.set(0);
+  }
+
   return (
-    <div
-      className="relative mx-auto aspect-square w-56 md:w-72"
-      style={{ containerType: "inline-size" }}
-    >
-      {/* Nebula haze — scoped to the avatar's own footprint, not the full
-          ring system. A single very slow opacity breathe; nothing else
-          in this component animates its own scale or brightness, per the
-          "no heavy glow" direction. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-[18%] rounded-full blur-3xl"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(124,111,238,0.35), rgba(255,94,168,0.15) 60%, transparent 75%)",
-          animation: "nebula-breathe 14s ease-in-out infinite",
-        }}
-      />
+    <div className="relative">
+      <motion.div
+        ref={ref}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="relative mx-auto aspect-square w-64 md:w-80"
+        style={{ containerType: "inline-size", perspective: 1000, rotateX, rotateY, transformStyle: "preserve-3d" as any }}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+      >
+        {/* Premium nebula haze - dual layer */}
+        <motion.div
+          aria-hidden="true"
+          className="absolute inset-[12%] rounded-full blur-[40px]"
+          style={{
+            background: "radial-gradient(circle, rgba(124,111,238,0.4), rgba(255,94,168,0.18) 50%, transparent 75%)",
+          }}
+          animate={{ scale: [1, 1.1, 1], opacity: [0.6, 0.8, 0.6] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          aria-hidden="true"
+          className="absolute inset-[20%] rounded-full blur-2xl"
+          style={{
+            background: "radial-gradient(circle, rgba(245,196,83,0.15), transparent 60%)",
+          }}
+          animate={{ scale: [1.1, 1, 1.1], opacity: [0.4, 0.6, 0.4] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        />
 
-      <div aria-hidden="true">
-        {RINGS.map((size) => (
-          <OrbitRing key={size} sizePercent={size} />
-        ))}
-      </div>
+        {/* Rings with premium stroke */}
+        <div aria-hidden="true">
+          {RINGS.map((size, i) => (
+            <motion.div
+              key={size}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.4 + i * 0.1 }}
+            >
+              <OrbitRing sizePercent={size} />
+            </motion.div>
+          ))}
+        </div>
 
-      <GravityParticles />
+        <GravityParticles />
 
-      <div aria-hidden="true">
-        {BODIES.map((b) => (
-          <OrbitingBody key={b.color} {...b} />
-        ))}
-      </div>
+        <div aria-hidden="true">
+          {BODIES.map((b) => (
+            <OrbitingBody key={b.color} {...b} />
+          ))}
+        </div>
 
-      {/* The avatar is the one thing in this component that does not move.
-          Everything above orbits it; it stays still — that's what makes it
-          read as the gravity source rather than one more moving element. */}
-      <div className="absolute inset-[18%] overflow-hidden rounded-full ring-1 ring-[var(--line)]">
-        {avatarSrc ? (
-          <Image src={avatarSrc} alt={avatarAlt} fill className="object-cover" priority />
-        ) : (
-          // Before the first ingestion run has ever completed, there's no
-          // synced avatar yet — a plain gradient circle rather than a
-          // broken image, same idiom as the Moon's own CSS-built surface.
-          <div
-            role="img"
-            aria-label={avatarAlt}
-            className="h-full w-full"
-            style={{
-              background:
-                "radial-gradient(circle at 35% 30%, var(--violet), var(--surface) 70%)",
-            }}
-          />
-        )}
-      </div>
+        {/* Avatar with premium border + magnetic */}
+        <div className="absolute inset-[18%] overflow-hidden rounded-full">
+          {/* Gradient border */}
+          <div className="absolute inset-0 rounded-full p-[1.5px] bg-gradient-to-b from-white/20 via-[rgba(124,111,238,0.3)] to-transparent z-10 pointer-events-none">
+            <div className="h-full w-full rounded-full bg-[var(--bg)]" />
+          </div>
+
+          {/* Glow ring */}
+          <div className="absolute inset-0 rounded-full shadow-[0_0_60px_rgba(124,111,238,0.3),inset_0_1px_0_rgba(255,255,255,0.15)] z-10 pointer-events-none" />
+
+          <div className="relative h-full w-full overflow-hidden rounded-full">
+            {avatarSrc ? (
+              <Image src={avatarSrc} alt={avatarAlt} fill className="object-cover scale-[1.02] group-hover:scale-105 transition-transform duration-[var(--duration-slow)]" priority />
+            ) : (
+              <div
+                role="img"
+                aria-label={avatarAlt}
+                className="h-full w-full"
+                style={{
+                  background: "radial-gradient(circle at 35% 30%, var(--violet), var(--surface) 70%)",
+                }}
+              />
+            )}
+            {/* Inner highlight */}
+            <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent pointer-events-none" />
+          </div>
+        </div>
+
+        {/* Floating moon icon - premium accent */}
+        <motion.div
+          className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-20"
+          animate={{ y: [0, -4, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <div className="h-2 w-20 rounded-full bg-gradient-to-r from-transparent via-[var(--violet)]/30 to-transparent blur-[2px]" />
+        </motion.div>
+      </motion.div>
+
+      {/* External glow */}
+      <div className="absolute inset-0 -z-10 blur-[80px] opacity-20 pointer-events-none" style={{ background: "radial-gradient(circle at 50% 50%, var(--violet), transparent 60%)" }} />
     </div>
   );
 }
