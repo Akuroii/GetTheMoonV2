@@ -125,7 +125,6 @@ export function AvatarOrbit({ avatarSrc, avatarAlt }: { avatarSrc: string | null
             <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-transparent pointer-events-none" />
           </div>
         </div>
-
         {/* Floating moon icon - premium accent */}
         <motion.div
           className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-20"
