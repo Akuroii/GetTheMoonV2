@@ -1,6 +1,0 @@
-{
-  "$schema": "https://railway.com/railway.schema.json",
-  "deploy": {
-    "startCommand": "node_modules/.bin/next start --hostname 0.0.0.0"
-  }
-}
