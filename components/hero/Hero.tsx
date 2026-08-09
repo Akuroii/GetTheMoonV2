@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { Container, SectionLabel } from "@/components/ui";
 import type { ChannelStats } from "@/lib/types";
 import { AvatarOrbit } from "./AvatarOrbit";
+import { SocialConstellation } from "./SocialConstellation";
 import { SubscriberCount } from "./SubscriberCount";
 import { Tagline } from "./Tagline";
 
@@ -70,7 +71,10 @@ export function Hero({ initialStats }: { initialStats: ChannelStats }) {
             </motion.p>
           </motion.div>
 
-          <AvatarOrbit avatarSrc={initialStats.avatarUrlYoutube} avatarAlt="GetTheMoon's creator" />
+          <div className="relative mx-auto aspect-square w-64 md:w-80">
+            <SocialConstellation />
+            <AvatarOrbit avatarSrc={initialStats.avatarUrlYoutube} avatarAlt="GetTheMoon's creator" />
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
