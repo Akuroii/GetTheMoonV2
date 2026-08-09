@@ -4,7 +4,6 @@ import { Hero } from "@/components/hero/Hero";
 import { MilestoneJourney } from "@/components/milestone/MilestoneJourney";
 import { ContentTimeline } from "@/components/timeline/ContentTimeline";
 import { StatsRow } from "@/components/stats/StatsRow";
-import { SocialLinks } from "@/components/stats/SocialLinks";
 import { RecentUploads } from "@/components/content/RecentUploads";
 import { FanFavorites } from "@/components/content/FanFavorites";
 import { MILESTONE_CONFIG, nextMilestone } from "@/lib/milestones";
@@ -24,7 +23,6 @@ export default async function HomePage() {
       <Hero initialStats={stats} />
       <MilestoneJourney initialStats={stats} />
       <StatsRow totalViews={stats.totalViews} contentCount={timelineItems.length} nextMilestone={nextMilestone(stats.subscriberCount)} />
-      <SocialLinks />
       <ContentTimeline items={timelineItems} />
       <RecentUploads items={timelineItems} />
       <FanFavorites items={fanItems} />
