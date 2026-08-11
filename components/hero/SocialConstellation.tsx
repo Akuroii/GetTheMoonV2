@@ -78,41 +78,45 @@ export function SocialConstellation() {
         const driftDelay = `${i * -1.4}s`;
 
         return (
-          <motion.a
+          <div
             key={link.url}
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Follow GetTheMoon on ${link.label}`}
-            className="pointer-events-auto absolute left-1/2 top-1/2 flex flex-col items-center gap-1.5 outline-none focus-visible:scale-110"
+            className="pointer-events-none absolute left-1/2 top-1/2"
             style={{ transform: `translate(calc(-50% + ${x}cqi), calc(-50% + ${y}cqi))` }}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.9 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-            whileHover={{ scale: 1.12 }}
-            whileTap={{ scale: 0.95 }}
           >
-            <span
-              className="relative block h-9 w-9 rounded-full"
-              style={{
-                background: "var(--text)",
-                boxShadow: "0 0 14px rgba(124,111,238,0.45)",
-                animation: reducedMotion
-                  ? undefined
-                  : `social-moon-drift 8.5s ease-in-out infinite`,
-                animationDelay: driftDelay,
-              }}
+            <motion.a
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Follow GetTheMoon on ${link.label}`}
+              className="pointer-events-auto flex flex-col items-center gap-1.5 outline-none focus-visible:scale-110"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.9 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{ scale: 1.12 }}
+              whileTap={{ scale: 0.95 }}
             >
               <span
-                aria-hidden="true"
-                className="absolute rounded-full"
-                style={{ background: "var(--bg)", top: "3px", left: "10px", right: "3px", bottom: "3px" }}
-              />
-            </span>
-            <span className="whitespace-nowrap text-[10px] font-medium tracking-[0.08em] text-[var(--text-faint)]">
-              {SHORT_LABELS[link.label] ?? link.label}
-            </span>
-          </motion.a>
+                className="relative block h-9 w-9 rounded-full"
+                style={{
+                  background: "var(--text)",
+                  boxShadow: "0 0 14px rgba(124,111,238,0.45)",
+                  animation: reducedMotion
+                    ? undefined
+                    : `social-moon-drift 8.5s ease-in-out infinite`,
+                  animationDelay: driftDelay,
+                }}
+              >
+                <span
+                  aria-hidden="true"
+                  className="absolute rounded-full"
+                  style={{ background: "var(--bg)", top: "3px", left: "10px", right: "3px", bottom: "3px" }}
+                />
+              </span>
+              <span className="whitespace-nowrap text-[10px] font-medium tracking-[0.08em] text-[var(--text-faint)]">
+                {SHORT_LABELS[link.label] ?? link.label}
+              </span>
+            </motion.a>
+          </div>
         );
       })}
     </div>
