@@ -14,7 +14,7 @@ const ORBIT_ANGLES = [-90, -18, 54, 126, 198];
 // with room to spare, same cqi unit AvatarOrbit's own OrbitingBody uses,
 // so this scales with the shared container exactly the way the existing
 // orbit rings already do.
-const ORBIT_RADIUS_CQI = 60;
+const ORBIT_RADIUS_CQI = 46;
 
 const SHORT_LABELS: Record<string, string> = {
   "Main Channel": "YT MAIN",
@@ -87,8 +87,7 @@ export function SocialConstellation() {
             className="pointer-events-auto absolute left-1/2 top-1/2 flex flex-col items-center gap-1.5 outline-none focus-visible:scale-110"
             style={{ transform: `translate(calc(-50% + ${x}cqi), calc(-50% + ${y}cqi))` }}
             initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.9 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
             whileHover={{ scale: 1.12 }}
             whileTap={{ scale: 0.95 }}
