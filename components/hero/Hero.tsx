@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { Container, SectionLabel } from "@/components/ui";
 import type { ChannelStats } from "@/lib/types";
 import { AvatarOrbit } from "./AvatarOrbit";
+import { CloseCircle } from "./CloseCircle";
 import { SocialConstellation } from "./SocialConstellation";
 import { SubscriberCount } from "./SubscriberCount";
 import { Tagline } from "./Tagline";
@@ -72,6 +73,7 @@ export function Hero({ initialStats }: { initialStats: ChannelStats }) {
           </motion.div>
 
           <div className="relative mx-auto aspect-square w-64 md:w-80">
+            <CloseCircle />
             <SocialConstellation />
             <AvatarOrbit avatarSrc={initialStats.avatarUrlYoutube} avatarAlt="GetTheMoon's creator" />
           </div>
